@@ -9,7 +9,7 @@ import tempfile
 import os
 
 
-try: 
+try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
@@ -92,7 +92,7 @@ class Marmoset():
 
         user = 'campusUID'
         content = response.read()
-        soup = BeautifulSoup(content)
+        soup = BeautifulSoup(content,"html.parser")
         found = False
         nr = 0
 
@@ -143,7 +143,7 @@ class Marmoset():
             if re.match(re.compile('.*' + course + '(\s+|\(|:|$)', re.I), link.text):
                 self.browser.follow_link(link)
 
-    def select_and_follow(self, patt, target): 
+    def select_and_follow(self, patt, target):
         """
         Selects a link based on a pattern and follows it.
 
@@ -154,7 +154,7 @@ class Marmoset():
         """
         response = self.browser.reload()
         contents = response.read()
-        soup = BeautifulSoup(contents)
+        soup = BeautifulSoup(contents,"html.parser")
         link = None
 
         for group in soup.find_all('tr'):
@@ -220,7 +220,7 @@ class Marmoset():
         self.find_submission(submission)
 
         response = self.browser.reload()
-        soup = BeautifulSoup(response.read())
+        soup = BeautifulSoup(response.read(),"html.parser")
         tokens = soup.find_all(lambda tag: tag.name == 'p' and re.search('^You currently have', tag.text))
 
         if len(tokens) == 0:
@@ -241,7 +241,7 @@ class Marmoset():
         """
         tokens = self.get_num_release_tokens(course, assignment, submission)
         response = self.browser.reload()
-        soup = BeautifulSoup(response.read())
+        soup = BeautifulSoup(response.read(),"html.parser")
         release_link = soup.find_all(lambda tag: tag.name == 'a' and tag.text.find('Click here to release') > -1)
 
         if len(release_link) > 0 and tokens > 0:
@@ -317,7 +317,7 @@ class Marmoset():
 
         f = None
         response = self.browser.reload()
-        soup = BeautifulSoup(response.read())
+        soup = BeautifulSoup(response.read(),"html.parser")
 
         details = []
         rows = soup.find_all(lambda tag: tag.name == 'tr')
@@ -359,7 +359,7 @@ class Marmoset():
         @return: None
         """
         response = self.browser.reload()
-        soup = BeautifulSoup(response.read())
+        soup = BeautifulSoup(response.read(),"html.parser")
 
         details = []
         rows = soup.find_all(lambda tag: tag.name == 'tr')
@@ -402,7 +402,7 @@ class Marmoset():
         self.select_course(course)
         self.select_and_follow(assignment, 'view')
         response = self.browser.reload();
-        soup = BeautifulSoup(response)
+        soup = BeautifulSoup(response,"html.parser")
 
         text = next(tag for tag in soup.find_all('p') if tag.text.find("Deadline") > -1).text.strip().split()
         deadline = [] if len(text) < 3 else text[:3]
@@ -420,7 +420,7 @@ class Marmoset():
         @return: dict
         """
         response = self.browser.reload()
-        soup = BeautifulSoup(response)
+        soup = BeautifulSoup(response,"html.parser")
 
         text = next(tag for tag in soup.find_all('p') if tag.text.find("Deadline") > -1).text.strip().split()
         deadline = [] if len(text) < 3 else text[:3]
@@ -429,7 +429,7 @@ class Marmoset():
         headers, data = [], []
         for i in range(0, min(len(rows), number_of_rows)):
             row = rows[i]
-            
+
             for col in row.find_all('th'):
                 text = col.text.split()
                 if len(text) > 0:
@@ -445,7 +445,7 @@ class Marmoset():
                         td.append(" ".join(text))
                 else:
                     td.append(" ".join(text))
-            
+
             if len(td) > 0:
                 data.append(OrderedDict(zip(headers, td)))
 
